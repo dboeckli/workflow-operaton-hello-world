@@ -1,0 +1,23 @@
+services:
+  ldap:
+    # vegardit/openldap is the maintained successor to the frozen bitnamilegacy/openldap
+    # (see https://github.com/bitnami/containers/issues/83267)
+    image: vegardit/openldap:2.6.10
+    container_name: ldap
+    environment:
+      LDAP_INIT_ORG_DN: dc=example,dc=ch
+      LDAP_INIT_ORG_NAME: Example, Inc
+      # cn=admin,dc=example,dc=ch
+      LDAP_INIT_ROOT_USER_DN: cn=admin,dc=example,dc=ch
+      LDAP_INIT_ROOT_USER_PW: password
+    ports:
+      - 389:389
+      #- 636:636
+    healthcheck:
+      test: [ "CMD", "ldapsearch", "-x", "-H", "ldap://localhost:389", "-D", "cn=admin,dc=example,dc=ch", "-w", "password", "-b", "dc=example,dc=ch" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - './ldifs/init_org_tree.ldif:/opt/ldifs/init_org_tree.ldif:ro'
+      - './ldifs/init_org_entries.ldif:/opt/ldifs/init_org_entries.ldif:ro'

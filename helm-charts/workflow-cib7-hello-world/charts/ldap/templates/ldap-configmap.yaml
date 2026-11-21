@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "workflow-cib7-hello-world-ldap.fullname" . }}-config-map
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "workflow-cib7-hello-world-ldap.labels" . | nindent 4 }}
+data:
+  init_org_tree.ldif: |
+    version: 1
+
+    ##############################
+    # LDAP tree definition
+    ##############################
+    dn: ${LDAP_INIT_ORG_DN}
+    dc: example
+    objectClass: top
+    objectClass: dcObject
+    objectClass: organization
+    o: Example, Inc
+
+    dn: ou=groups,${LDAP_INIT_ORG_DN}
+    objectClass: top
+    objectClass: organizationalUnit
+    ou: groups
+
+    dn: ou=users,${LDAP_INIT_ORG_DN}
+    objectClass: top
+    objectClass: organizationalUnit
+    ou: users
+
+  init_org_entries.ldif: |
+    version: 1
+
+    # groups
+    dn: cn=camunda-admins,ou=groups,${LDAP_INIT_ORG_DN}
+    objectClass: groupOfNames
+    cn: camunda-admins
+    member: cn=camunda-admin,ou=users,${LDAP_INIT_ORG_DN}
+
+    # group: readers
+    dn: cn=readers,ou=groups,${LDAP_INIT_ORG_DN}
+    objectClass: groupOfNames
+    cn: readers
+    member: cn=user01,ou=users,${LDAP_INIT_ORG_DN}
+
+    # group: editors
+    dn: cn=editors,ou=groups,${LDAP_INIT_ORG_DN}
+    objectClass: groupOfNames
+    cn: editors
+    member: cn=user02,ou=users,${LDAP_INIT_ORG_DN}
+
+    # camunda admin
+    dn: cn=camunda-admin,ou=users,${LDAP_INIT_ORG_DN}
+    objectClass: inetOrgPerson
+    cn: camunda-admin
+    uid: camunda-admin
+    givenName: Admin
+    sn: Admin User
+    userPassword: camunda-admin-password
+    mail: camunda-admin@example.ch
+
+    # user01
+    dn: cn=user01,ou=users,${LDAP_INIT_ORG_DN}
+    objectClass: inetOrgPerson
+    cn: user01
+    uid: user01
+    givenName: John
+    sn: Doe
+    userPassword: user01-password
+    mail: john.doe@example.com
+
+    # user02
+    dn: cn=user02,ou=users,${LDAP_INIT_ORG_DN}
+    objectClass: inetOrgPerson
+    cn: user02
+    uid: user02
+    givenName: Jane
+    sn: Smith
+    userPassword: user02-password
+    mail: jane.smith@example.com
+
+    # user03
+    dn: cn=user03,ou=users,${LDAP_INIT_ORG_DN}
+    objectClass: inetOrgPerson
+    cn: user03
+    uid: user03
+    givenName: Bob
+    sn: Johnson
+    userPassword: user03-password
+    mail: user03@example.ch

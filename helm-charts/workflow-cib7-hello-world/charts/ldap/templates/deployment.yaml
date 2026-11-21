@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "workflow-cib7-hello-world-ldap.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "workflow-cib7-hello-world-ldap.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "workflow-cib7-hello-world-ldap.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        {{- include "workflow-cib7-hello-world-ldap.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+    spec:
+      containers:
+        - name: ldap
+          image: {{ .Values.openldapImage.repository }}:{{ .Values.openldapImage.tag }}
+          imagePullPolicy: {{ .Values.openldapImage.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: LDAP_INIT_ORG_DN
+              value: "{{ .Values.ldap.baseDN }}"
+            - name: LDAP_INIT_ORG_NAME
+              value: "{{ .Values.ldap.orgName }}"
+            - name: LDAP_INIT_ROOT_USER_DN
+              value: "{{ .Values.ldap.adminUsername }}"
+            - name: LDAP_INIT_ROOT_USER_PW
+              value: "{{ .Values.ldap.adminPassword }}"
+          volumeMounts:
+            - name: ldifs
+              mountPath: /opt/ldifs/init_org_tree.ldif
+              subPath: init_org_tree.ldif
+            - name: ldifs
+              mountPath: /opt/ldifs/init_org_entries.ldif
+              subPath: init_org_entries.ldif
+          readinessProbe:
+            exec:
+              command:
+                - ldapsearch
+                - -x
+                - -H
+                - ldap://localhost:{{ .Values.service.targetPort }}
+                - -D
+                - "{{ .Values.ldap.adminUsername }}"
+                - -w
+                - "{{ .Values.ldap.adminPassword }}"
+                - -b
+                - "{{ .Values.ldap.baseDN }}"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command:
+                - ldapsearch
+                - -x
+                - -H
+                - ldap://localhost:{{ .Values.service.targetPort }}
+                - -D
+                - "{{ .Values.ldap.adminUsername }}"
+                - -w
+                - "{{ .Values.ldap.adminPassword }}"
+                - -b
+                - "{{ .Values.ldap.baseDN }}"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+      volumes:
+        - name: ldifs
+          configMap:
+            name: {{ include "workflow-cib7-hello-world-ldap.fullname" . }}-config-map
+            items:
+              - key: init_org_tree.ldif
+                path: init_org_tree.ldif
+              - key: init_org_entries.ldif
+                path: init_org_entries.ldif

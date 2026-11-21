@@ -1,0 +1,20 @@
+# IntelliJ files
+/.idea/
+.metadata
+
+# Eclipse files
+/.settings/
+.classpath
+.project
+
+# Maven files
+/target/
+
+# Other
+*.log
+*.dmp
+/src/main/conf/ci.conf
+/src/main/conf/local.conf
+
+# Node.js
+node_modules/

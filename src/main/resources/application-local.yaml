@@ -1,0 +1,237 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: workflow-hello-world
+
+  threads:
+    virtual:
+      enabled: true
+
+  task:
+    execution:
+      propagate-context: true
+
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+
+  jpa:
+    defer-datasource-initialization: true
+  datasource:
+    hikari:
+      jdbc-url: jdbc:h2:mem:workflow-hello-world
+
+  docker:
+    compose:
+      enabled: true
+      stop:
+        command: down
+      skip:
+        in-tests: false
+
+  ldap:
+    url: ldap://localhost:389
+    base-dn: dc=example,dc=ch
+    manager-dn: cn=admin,dc=example,dc=ch
+    manager-password: password
+  web:
+    error:
+      include-message: always
+      include-binding-errors: always
+
+camunda:
+  bpm:
+    authorization:
+      enabled: true
+    run:
+      ldap:
+        enabled: true # Switch to enable the LDAP identity service plugin
+      admin-auth:
+        enabled: true # Switch to enable the Administrator Authorization plugin
+      auth:
+        enabled: true # Switch to enable authentication for requests to the REST API
+        # composite requires cibseven-webclient.properties
+        authentication: composite # Authentication method, currently only basic and composite is supported
+    admin-user:
+      id: camunda-admin
+    filter:
+      create: All Tasks
+    client:
+      base-url: http://localhost:8080/engine-rest
+      worker-id: spring-boot-worker
+      basic-auth:
+        username: camunda-admin
+        password: camunda-admin-password
+    metrics:
+      enabled: true
+      db-reporter-activate: true
+    generic-properties:
+      ignore-unknown-fields: false
+      properties:
+        javaSerializationFormatEnabled: true
+        historyTimeToLive: 5
+        enableExceptionsAfterUnhandledBpmnError: true
+
+# CIB seven webclient configuration
+# Defaults & overrides
+# https://github.com/cibseven/cibseven-webclient
+# https://docs.cibseven.org/manual/latest/user-guide/cibseven-run/#choose-between-default-and-production-configuration
+# https://docs.cibseven.org/get-started/spring-boot/configuration/
+# Default is in JAR: cibseven-webclient-web-spring-boot-4-2.2.0.jar!/application.yaml
+# Config-Binding: org.cibseven.webapp.SevenWebclientContext
+cibseven:
+  webclient:
+    enabled: true
+    services:
+      basePath: webapp/services/v1
+    # Engine rest
+    engineRest:
+      url: http://localhost:8080
+      path: /engine-rest
+    user:
+      provider: org.cibseven.webapp.auth.LdapUserProvider
+    ldap:
+      url: ldap://localhost:389
+      user: cn=admin,dc=example,dc=ch
+      password: password
+      folder: dc=example,dc=ch # BASE DN
+      userNameAttribute: uid
+      userDisplayNameAttribute: cn
+      followReferrals: follow
+
+camunda-ldap-plugin:
+  url: ldap://localhost:389
+  sslEnabled: false
+  user: cn=admin,dc=example,dc=ch
+  password: password
+  base-dn: dc=example,dc=ch
+  users:
+    user-search-base: "ou=users"
+    user-search-filter: "(objectClass=inetOrgPerson)"
+    user-id-attribute: uid
+    user-firstname-attribute: givenName
+    user-lastname-attribute: sn
+    user-email-attribute: mail
+    user-password-attribute: userPassword
+  groups:
+    group-search-base: "ou=groups"
+    group-search-filter: "(objectClass=groupOfNames)"
+    group-id-attribute: cn
+    group-name-attribute: cn
+    group-member-attribute: member
+
+camunda-authorization-plugin:
+  admin-group: "camunda-admins"
+  admin-user: "camunda-admin"
+
+management:
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+    camunda:
+      enabled: true
+  endpoints:
+    # we need this deprecated config because the cibseven-webclient-web dependency comes with its own application.yaml
+    # we need to overwrite it this way.
+    # see: https://github.com/cibseven/cibseven-webclient/blob/main/cibseven-webclient-web/src/main/resources/application.yaml
+    #enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+    access:
+      default: unrestricted
+  endpoint:
+    configprops:
+      # WARNING: SECURITY RISK - DO NOT USE IN PRODUCTION ENVIRONMENT
+      # This configuration exposes sensitive data and should only be used for development or testing purposes.
+      # Ensure this is disabled in any environment where security is a concern.
+      show-values: ALWAYS
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  info:
+    build:
+      enabled: true
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+  httpexchanges:
+    recording:
+      enabled: true
+      include: request_headers, response_headers, session_id, time_taken
+  observations:
+    annotations:
+      enabled: true
+    http:
+      server:
+        requests:
+          name: http.server.requests
+      client:
+        requests:
+          name: http-client-requests
+
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    export:
+      otlp:
+        enabled: false
+    sampling:
+      probability: 1.0
+    propagation:
+      type: W3C
+
+  logging:
+    export:
+      enabled: false
+      otlp:
+        enabled: false
+  simple:
+    metrics:
+      export:
+        enabled: false
+
+springdoc:
+  show-actuator: true
+  api-docs:
+    path: /swagger/v3/api-docs
+    groups:
+      enabled: true
+  swagger-ui:
+    show-extensions: true
+
+appconfig:
+  request-logging:
+    # set to false to remove the request logging filter from the chain entirely
+    enabled: true
+    # request URI prefixes that are not logged
+    exclude-paths:
+      - /actuator/health
+
+logging:
+  level:
+    org.springframework.ldap: INFO
+    ch.bpm.workflow.example.config.RequestLoggingFilter: DEBUG
+
+application:
+  apifirst-server-jpa:
+    protocol: "http"
+    host: "localhost"
+    port: "8082"
+    context: "/"

@@ -1,0 +1,321 @@
+name: Deploy and Test Cluster
+run-name: >
+  ${{ github.workflow }}: ${{ github.event_name }} for ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      application-name:
+        type: string
+        description: 'Application Name'
+        required: true
+      version:
+        type: string
+        description: 'Version to deploy'
+        required: true
+      helm-chart-version:
+        type: string
+        description: 'Helm Chart Version'
+        required: true
+      namespace:
+        type: string
+        description: 'Namespace'
+        required: true
+      deployed-by-build:
+        type: string
+        description: 'Build number of trigger build'
+        required: true
+        default: 'None'
+      deployed-by-workflow:
+        type: string
+        description: 'Name of trigger workflow'
+        required: true
+        default: 'None'
+
+jobs:
+
+  deploy-app-with-helm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Show Version
+        env:
+          APPLICATION_NAME: ${{ inputs.application-name }}
+          VERSION: ${{ inputs.version }}
+          HELM_CHART_VERSION: ${{ inputs.helm-chart-version }}
+          NAMESPACE: ${{ inputs.namespace }}
+          DEPLOYED_BY_WORKFLOW: ${{ inputs.deployed-by-workflow }}
+          DEPLOYED_BY_BUILD: ${{ inputs.deployed-by-build }}
+        run: |
+          echo "Deploying Application $APPLICATION_NAME with Version: $VERSION, Helm chart version: $HELM_CHART_VERSION, to namespace $NAMESPACE"
+          echo "Deployment triggered by workflow $DEPLOYED_BY_WORKFLOW. Run number: $DEPLOYED_BY_BUILD"
+
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Helm
+        uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
+        with:
+          version: v4.3.2
+
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@ea822c7bf1874f08e5a491df991c228edffc3376 # v1.15.2
+
+      - name: Pull Helm Chart
+        env:
+          HELM_CHART_VERSION: ${{ inputs.helm-chart-version }}
+          DOCKER_USER: ${{ vars.DOCKER_USER }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+        run: |
+          echo "Pulling Helm Chart Version: $HELM_CHART_VERSION from oci://registry-1.docker.io/$DOCKER_USER/$APPLICATION_NAME-chart"
+          helm pull oci://registry-1.docker.io/$DOCKER_USER/$APPLICATION_NAME-chart --version "$HELM_CHART_VERSION"
+          tar -xvf $APPLICATION_NAME-*.tgz  
+
+      - name: Deploy application with Helm
+        env:
+          APP_VERSION: ${{ inputs.helm-chart-version }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          # Install/upgrade the Helm chart
+          echo "Deploying Application $APPLICATION_NAME: $APP_VERSION"
+          helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME-chart \
+          --set image.tag=${APP_VERSION} \
+          --namespace ${NAMESPACE} \
+          --create-namespace \
+          --wait --timeout 5m \
+          --debug
+
+      - name: Wait for Pods to be ready
+        env:
+          NAMESPACE: ${{ inputs.namespace }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+          VERSION: ${{ inputs.version }}
+          DEPLOYED_BY_WORKFLOW: ${{ inputs.deployed-by-workflow }}
+          DEPLOYED_BY_BUILD: ${{ inputs.deployed-by-build }}
+        run: |
+          if ! kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=$APPLICATION_NAME -n $NAMESPACE --timeout=240s; then
+            POD_NAME=$(kubectl get pods -l app.kubernetes.io/name=$APPLICATION_NAME -o jsonpath="{.items[0].metadata.name}" -n $NAMESPACE)
+            kubectl logs $POD_NAME -n $NAMESPACE
+            echo "Describing the pod:"
+            kubectl describe pod $POD_NAME -n $NAMESPACE
+            exit 1
+          fi
+          BUILD_LINK="${{ github.server_url }}/${{ github.repository }}/actions/runs/${DEPLOYED_BY_BUILD}"
+          echo "::notice:: ### Helm Deployed Version: $VERSION"
+          echo "::notice:: ### Deployment triggered by workflow $DEPLOYED_BY_WORKFLOW. Run number: $DEPLOYED_BY_BUILD: $BUILD_LINK"
+
+      - name: Test Application
+        env:
+          APP_VERSION: ${{ inputs.helm-chart-version }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          echo "Testing Application $APPLICATION_NAME: $APP_VERSION"
+          TEST_OUTPUT=$(helm test $APPLICATION_NAME --namespace ${NAMESPACE} --logs)
+          TEST_EXIT_CODE=$?
+          
+          echo "::group::Helm Test Raw Output"
+          echo "Exit Code: $TEST_EXIT_CODE"
+          echo "$TEST_OUTPUT"
+          echo "::endgroup::"
+          
+          # Check all test exit codes
+          if echo "$TEST_OUTPUT" | grep -q "Exit code: [^0]"; then
+            echo "::error::One or more Helm tests failed. See details below:"
+            exit 1
+          elif [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "::error::Helm test command failed with exit code $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          else
+            echo "All Helm tests passed successfully."
+          fi      
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Install Bruno CLI
+        run: |
+          # The npm registry occasionally serves package metadata before the
+          # tarball is available. npm does not retry 404s, so retry the install.
+          for attempt in 1 2 3; do
+            if npm install -g --ignore-scripts @usebruno/cli@4.3.0; then
+              echo "Bruno CLI installed (attempt $attempt)"
+              exit 0
+            fi
+            echo "::warning::npm install failed (attempt $attempt), retrying..."
+            npm cache clean --force || true
+            sleep 15
+          done
+          echo "::error::Could not install @usebruno/cli after 3 attempts"
+          exit 1
+
+      - name: Run Bruno flows
+        working-directory: httprequest/bruno
+        env:
+          NAMESPACE: ${{ inputs.namespace }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+        run: |
+          set -o pipefail
+          set -o nounset
+          set -o errexit
+
+          kubectl port-forward svc/"$APPLICATION_NAME" 8080:8080 -n "$NAMESPACE" > /tmp/port-forward.log 2>&1 &
+          PORT_FORWARD_PID=$!
+          trap 'kill $PORT_FORWARD_PID 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/actuator/health/readiness > /dev/null; then
+              echo "Application reachable via port-forward (attempt $attempt)"
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "::error::Application not reachable via port-forward"
+              cat /tmp/port-forward.log
+              exit 1
+            fi
+            sleep 2
+          done
+
+          mkdir -p "$GITHUB_WORKSPACE/bru-reports"
+          bru run restapi -r --env local --delay 6000 \
+            --reporter-skip-all-headers \
+            --reporter-junit "$GITHUB_WORKSPACE/bru-reports/TEST-bruno-restapi.xml" \
+            --reporter-html "$GITHUB_WORKSPACE/bru-reports/bru-report-restapi.html"
+
+      - name: Upload Bruno reports
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: bruno-reports
+          path: bru-reports/
+          if-no-files-found: warn
+
+      - name: Publish Bruno test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2.26.0
+        with:
+          files: bru-reports/TEST-bruno-*.xml
+          check_name: Bruno API flows
+          comment_mode: "off"
+          fail_on: test failures
+          action_fail: true
+
+      - name: Display Deployment Information
+        env:
+          NAMESPACE: ${{ inputs.namespace }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+        if: always()
+        run: |
+          echo "Deployment Information:"
+          
+          echo "--- Pods in $NAMESPACE namespace:"
+          kubectl get pods -n $NAMESPACE
+          
+          echo "--- Describe pods in $NAMESPACE namespace:"
+          kubectl describe pods -n $NAMESPACE
+          
+          echo "--- Show Events in $NAMESPACE namespace:"
+          kubectl get events --sort-by=.metadata.creationTimestamp -n $NAMESPACE
+          
+          echo "--- Show Logs (if pods exist)"
+          PODS=$(kubectl get pods -o jsonpath="{.items[*].metadata.name}" -n $NAMESPACE)
+          echo "Found pods: $PODS"
+          if [ -n "$PODS" ]; then
+            for POD in $PODS; do
+              echo "---------------- Logs for pod $POD:"
+              kubectl logs $POD -n $NAMESPACE --all-containers
+              echo "---------------- End of Logs for pod $POD:"
+            done
+          else
+            echo "No pods found with label app.kubernetes.io/name=$APPLICATION_NAME in $NAMESPACE namespace"
+            echo "Listing all pods in $NAMESPACE namespace:"
+            kubectl get pods -n $NAMESPACE
+          fi          
+
+
+  publish-bruno-report:
+    needs: deploy-app-with-helm
+    if: always()
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    steps:
+      - name: Download Bruno reports
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: bruno-reports
+          path: bru-reports
+
+      - name: Build Pages site
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -o nounset
+          set -o errexit
+
+          mkdir -p _site
+          shopt -s nullglob
+          reports=(bru-reports/*.html)
+
+          if [ "${#reports[@]}" -eq 0 ]; then
+            printf '%s\n' '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Bruno reports</title></head><body><h1>Bruno flow reports</h1><p>No report available for this run.</p></body></html>' > _site/index.html
+            exit 0
+          fi
+
+          cp "${reports[@]}" _site/
+          {
+            printf '%s\n' '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Bruno reports</title></head><body>'
+            printf '<h1>Bruno flow reports</h1>\n'
+            printf '<p>Workflow run: <a href="%s">%s</a></p>\n' "$RUN_URL" "$RUN_URL"
+            printf '<ul>\n'
+            for report in "${reports[@]}"; do
+              name=$(basename "$report")
+              printf '  <li><a href="%s">%s</a></li>\n' "$name" "$name"
+            done
+            printf '</ul>\n</body></html>\n'
+          } > _site/index.html
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+          # Unique per attempt: re-runs would otherwise leave a second "github-pages" artifact.
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Add report link to summary
+        if: always()
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          if [ -n "${PAGE_URL:-}" ]; then
+            echo "### Bruno reports" >> "$GITHUB_STEP_SUMMARY"
+            echo "$PAGE_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
