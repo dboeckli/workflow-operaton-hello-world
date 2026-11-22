@@ -1,16 +1,22 @@
 # Workflow Flow: hello-world-process starten und Token-Position verifizieren
 
-Datei: `httprequest/restapi/workflow-flow/workflow-flow.http`
+Die Workflow-Flows sind in separate, eigenständig ausführbare Flows (Ordner) aufgeteilt.
+Jeder Flow startet seinen eigenen Prozess, prüft Token-Variable und Token-Position über die
+Engine-REST-API und schließt den User Task `say-hello` per Claim als `admin` und Complete ab.
+Der Claim wartet per Poll, bis der Task aktiv ist.
+Die beiden Validierungs-Flows erzeugen dagegen keine Instanz.
 
-## Ziel
+|      Flow       |             Quelldatei             |  Prozessstart   |                 Erwartung                  |
+|-----------------|------------------------------------|-----------------|--------------------------------------------|
+| `default`       | `default/default.http`             | `input=hallo`   | `200`, Default-Branch (`User03=Default`)   |
+| `eder`          | `eder/eder.http`                   | `input=eder`    | `200`, Branch `eder` (`User03=Eder`)       |
+| `pumukel`       | `pumukel/pumukel.http`             | `input=pumukel` | `200`, Branch `pumukel` (`User03=Pumukel`) |
+| `fail`          | `fail/fail.http`                   | `input=fail`    | `200`, Fehlerpfad (`BpmnError`)            |
+| `missing-input` | `missing-input/missing-input.http` | kein `input`    | `400` (Bean Validation)                    |
+| `empty-input`   | `empty-input/empty-input.http`     | `input=""`      | `400` (`ValidateInputDelegate`)            |
 
-Alle Controller-Varianten des Prozessstarts pruefen: Default-Pfad, die beiden benannten
-Gateway-Branches (`eder`, `pumukel`), den Fehlerpfad (`fail`) sowie die beiden
-Validierungsfehler (fehlendes und leeres `input`).
-
-Zusaetzlich wird nach jedem erfolgreichen Start ueber die Camunda-Engine-REST-API geprueft,
-wo der Token im Prozess steht: die `tokenVariable` (Status + Input) und die aktuelle
-Activity-Instanz.
+Die Bruno-Sammlung liegt unter `httprequest/bruno/restapi/workflow-flow/<flow>/`.
+Vor dem Start wird `processInstanceId` in jedem Flow zurückgesetzt.
 
 ## Ablauf (Services)
 
@@ -31,32 +37,49 @@ sequenceDiagram
     C->>APP: GET /engine-rest/process-instance/{id}/activity-instances
     APP-->>C: aktuelle Activity (z. B. say-hello)
 
-    Note over APP,API: Weitere Schritte laufen asynchron (Job Executor)
+    C->>APP: GET /engine-rest/task?processInstanceId={id}
+    APP-->>C: say-hello task
+    C->>APP: POST /engine-rest/task/{taskId}/claim {"userId":"admin"}
+    C->>APP: POST /engine-rest/task/{taskId}/complete {}
+
+    Note over APP,API: Complete stößt SayHelloDelegate an; fail -> BpmnError
     APP->>API: SayHelloDelegate -> CustomerApi.listCustomers()
 ```
 
-## Requests (in dieser Reihenfolge)
+## Requests je Flow
 
-| #  |           Request            |  `input`  |               Erwartung                |
-|----|------------------------------|-----------|----------------------------------------|
-| 1  | default start                | `hallo`   | `200`, Prozessinstanz angelegt         |
-| 2  | default token variable       | –         | `200`, Status gesetzt, Input `hallo`   |
-| 3  | default token activity       | –         | `200`, aktuelle Activity vorhanden     |
-| 4  | gateway branch Eder start    | `eder`    | `200`, Prozessinstanz angelegt         |
-| 5  | Eder token variable          | –         | `200`, Status gesetzt, Input `eder`    |
-| 6  | Eder token activity          | –         | `200`, aktuelle Activity vorhanden     |
-| 7  | gateway branch Pumukel start | `pumukel` | `200`, Prozessinstanz angelegt         |
-| 8  | Pumukel token variable       | –         | `200`, Status gesetzt, Input `pumukel` |
-| 9  | Pumukel token activity       | –         | `200`, aktuelle Activity vorhanden     |
-| 10 | delegate error path start    | `fail`    | `200`, Prozessinstanz angelegt         |
-| 11 | fail token variable          | –         | `200`, Status gesetzt, Input `fail`    |
-| 12 | fail token activity          | –         | `200`, aktuelle Activity vorhanden     |
-| 13 | missing input                | fehlt     | `400` (Bean Validation)                |
-| 14 | empty input                  | `""`      | `400` (`ValidateInputDelegate`)        |
+|      Flow       | # |              Request               |               Erwartung                |
+|-----------------|---|------------------------------------|----------------------------------------|
+| `default`       | 1 | start process with input hallo     | `200`, Prozessinstanz angelegt         |
+| `default`       | 2 | read the token variable            | `200`, Status gesetzt, Input `hallo`   |
+| `default`       | 3 | read the token position (activity) | `200`, aktuelle Activity vorhanden     |
+| `default`       | 4 | get the user task (say-hello)      | `200`, genau ein Task                  |
+| `default`       | 5 | claim the user task as admin       | `204`                                  |
+| `default`       | 6 | complete the user task             | `204`                                  |
+| `eder`          | 1 | start process with input eder      | `200`, Prozessinstanz angelegt         |
+| `eder`          | 2 | read the token variable            | `200`, Status gesetzt, Input `eder`    |
+| `eder`          | 3 | read the token position (activity) | `200`, aktuelle Activity vorhanden     |
+| `eder`          | 4 | get the user task (say-hello)      | `200`, genau ein Task                  |
+| `eder`          | 5 | claim the user task as admin       | `204`                                  |
+| `eder`          | 6 | complete the user task             | `204`                                  |
+| `pumukel`       | 1 | start process with input pumukel   | `200`, Prozessinstanz angelegt         |
+| `pumukel`       | 2 | read the token variable            | `200`, Status gesetzt, Input `pumukel` |
+| `pumukel`       | 3 | read the token position (activity) | `200`, aktuelle Activity vorhanden     |
+| `pumukel`       | 4 | get the user task (say-hello)      | `200`, genau ein Task                  |
+| `pumukel`       | 5 | claim the user task as admin       | `204`                                  |
+| `pumukel`       | 6 | complete the user task             | `204`                                  |
+| `fail`          | 1 | start process with input fail      | `200`, Prozessinstanz angelegt         |
+| `fail`          | 2 | read the token variable            | `200`, Status gesetzt, Input `fail`    |
+| `fail`          | 3 | read the token position (activity) | `200`, aktuelle Activity vorhanden     |
+| `fail`          | 4 | get the user task (say-hello)      | `200`, genau ein Task                  |
+| `fail`          | 5 | claim the user task as admin       | `204`                                  |
+| `fail`          | 6 | complete the user task             | `204` (BpmnError)                      |
+| `missing-input` | 1 | start process without input field  | `400` (Bean Validation)                |
+| `empty-input`   | 1 | start process with empty input     | `400` (`ValidateInputDelegate`)        |
 
 ## Token-Verifikation
 
-Die `tokenVariable` wird im `ValidateInputDelegate` erzeugt und durchlaeuft folgende Status:
+Die `tokenVariable` wird im `ValidateInputDelegate` erzeugt und durchläuft folgende Status:
 
 |        Status        |                Bedeutung                 |
 |----------------------|------------------------------------------|
@@ -72,11 +95,13 @@ Token nach dem Start am User Task `say-hello` (Status `RUNNING`).
 
 ## Asserts
 
-- Starts 1, 4, 7, 10: `200`, `processDefinitionId` beginnt mit `hello-world-process`,
-  `processInstanceId` gesetzt und als `{{processInstanceId}}` gespeichert.
+- Start-Requests in `default`, `eder`, `pumukel` und `fail`: `200`,
+  `processDefinitionId` beginnt mit `hello-world-process`, `processInstanceId` gesetzt und
+  als `{{processInstanceId}}` gespeichert.
 - Token-Requests: `200`, gueltiger Status, erwarteter Input.
 - Activity-Requests: `200`, aktuelle Activity/Transition vorhanden, gleiche Prozessinstanz.
-- Requests 13–14: `400`.
+- Task-Query: `200` (Task ggf. noch nicht aktiv); Claim pollt, Claim/Complete: `204`.
+- `missing-input` und `empty-input`: `400`.
 
 ## Hinweise
 
@@ -90,4 +115,10 @@ Token nach dem Start am User Task `say-hello` (Status `RUNNING`).
   der Controller antwortet trotzdem mit `200`, weil der Prozess zu diesem Zeitpunkt bereits laeuft.
 - Der Default-Pfad setzt `User03` auf `Default`, die Branches auf `Eder` bzw. `Pumukel`
   (`Set_User03_*`-ScriptTasks im BPMN).
+- Die vier Start-Flows claimen `say-hello` als `admin` und completen den Task; danach läuft
+  der Prozess weiter. Beim `fail`-Flow wirft erst der `SayHelloDelegate` nach dem Complete den
+  `BpmnError`.
+- Die Claim-Requests pollen in Bruno die Task-Query (`bru.runRequest` + `bru.sleep`), bis der
+  `say-hello`-Task aktiv ist. Der 04-Request ist eine tolerante Vorab-Abfrage; im
+  IntelliJ-HTTP-Client gibt es keinen Sleep, dort ggf. die Query erneut ausführen.
 

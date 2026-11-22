@@ -1,0 +1,18 @@
+# Flow: validation — missing input (400) — see ../workflow-flow.md
+
+### 1) start process without input field (validation error)
+< ../../../scripts/traceparent.js
+POST {{host}}/restapi/workflow
+Accept: application/json
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+{}
+
+> {%
+    client.test("missing input returns 400", function () {
+        client.assert(response.status === 400, "expected 400 but got " + response.status);
+    });
+%}

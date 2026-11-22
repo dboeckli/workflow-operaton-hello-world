@@ -1,0 +1,118 @@
+# Flow: default branch — start hello-world-process, verify the token and complete say-hello — see ../workflow-flow.md
+
+### 1) start process with default input (gateway default branch, User03 = Default)
+< {%
+    client.global.set("processInstanceId", "");
+    client.global.set("taskId", "");
+%}
+< ../../../scripts/traceparent.js
+POST {{host}}/restapi/workflow
+Accept: application/json
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+{
+    "input": "hallo"
+}
+
+> {%
+    client.test("default input returns 200", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+    });
+    client.test("default input starts hello-world-process", function () {
+        client.assert(response.body.processDefinitionId.startsWith("hello-world-process"), "unexpected processDefinitionId");
+        client.assert(!!response.body.processInstanceId, "processInstanceId missing");
+        client.assert(!!response.body.id, "id missing");
+    });
+    client.global.set("processInstanceId", response.body.processInstanceId);
+%}
+
+### 2) read the token variable (status/input)
+< ../../../scripts/traceparent.js
+GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/variables/tokenVariable
+Authorization: Basic {{username}} {{password}}
+Accept: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+> {%
+    const token = response.body.value;
+    client.log("default token status: " + (token ? token.status : "missing") + ", input: " + (token ? token.input.inputVariable : "missing"));
+    client.test("default token variable is readable", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+        client.assert(!!token, "token value missing");
+        client.assert(["STARTED", "RUNNING", "COMPLETED", "FINISHED", "BUSINESS_EXCEPTION"].indexOf(token.status) >= 0, "unexpected token status " + token.status);
+        client.assert(token.input.inputVariable === "hallo", "unexpected token input");
+    });
+%}
+
+### 3) read the token position (activity)
+< ../../../scripts/traceparent.js
+GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/activity-instances
+Authorization: Basic {{username}} {{password}}
+Accept: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+> {%
+    const root = response.body;
+    const current = (root.childActivityInstances && root.childActivityInstances[0]) || (root.childTransitionInstances && root.childTransitionInstances[0]);
+    client.log("default token position: " + (current ? current.activityId : "unknown"));
+    client.test("default token is in the process", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+        client.assert(!!current, "no current activity or transition");
+        client.assert(current.processInstanceId === client.global.get("processInstanceId"), "processInstanceId mismatch");
+    });
+%}
+
+### 4) get the user task (say-hello)
+< ../../../scripts/traceparent.js
+GET {{host}}/engine-rest/task?processInstanceId={{processInstanceId}}&taskDefinitionKey=say-hello
+Authorization: Basic {{username}} {{password}}
+Accept: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+> {%
+    client.log("say-hello task count: " + response.body.length);
+    if (response.body.length > 0) {
+        client.global.set("taskId", response.body[0].id);
+    }
+%}
+
+### 5) claim the user task as admin
+# bruno:wait-for-task 04-get-the-user-task
+< ../../../scripts/traceparent.js
+POST {{host}}/engine-rest/task/{{taskId}}/claim
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+{
+    "userId": "admin"
+}
+
+> {%
+    client.test("claim returns 204", function () {
+        client.assert(response.status === 204, "expected 204 but got " + response.status);
+    });
+%}
+
+### 6) complete the user task
+< ../../../scripts/traceparent.js
+POST {{host}}/engine-rest/task/{{taskId}}/complete
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+traceparent: 00-{{traceId}}-{{spanId}}-03
+baggage: testBaggage=workflow-operaton-hello-world
+
+{}
+
+> {%
+    client.test("complete returns 204", function () {
+        client.assert(response.status === 204, "expected 204 but got " + response.status);
+    });
+%}
