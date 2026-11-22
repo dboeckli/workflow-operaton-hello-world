@@ -11,6 +11,10 @@ spring:
   profiles:
     active: local
 
+# Fixed short name for the LDAP subchart so service names/FQDNs stay short.
+workflow-operaton-hello-world-ldap:
+  fullnameOverride: ldap
+
 ldap:
   enabled: true
 

@@ -72,7 +72,7 @@ Use the workflow-operaton-hello-world-ldap service FQDN.
 The LDAP subchart's service name is its fullname (release + subchart name),
 truncated to the 63-char DNS label limit.
 */}}
-{{- define "workflow-operaton-hello-world-ldap.serviceFQDN" -}}
+{{- define "application-template.ldapServiceFQDN" -}}
 {{- $sub := index .Values "workflow-operaton-hello-world-ldap" | default dict -}}
 {{- $name := default "workflow-operaton-hello-world-ldap" $sub.nameOverride -}}
 {{- $fullname := "" -}}
