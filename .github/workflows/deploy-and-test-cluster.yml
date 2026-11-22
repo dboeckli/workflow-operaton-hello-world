@@ -1,3 +1,4 @@
+# workflow_dispatch-only workflow. Must be present on the default branch so GitHub registers it for gh workflow run.
 name: Deploy and Test Cluster
 run-name: >
   ${{ github.workflow }}: ${{ github.event_name }} for ${{ github.ref_name }} by @${{ github.actor }}
