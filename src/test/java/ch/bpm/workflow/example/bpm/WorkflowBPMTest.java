@@ -5,12 +5,13 @@ import ch.bpm.workflow.example.common.bpm.variable.token.TokenVariable;
 import ch.bpm.workflow.example.util.config.TestCamundaClientConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.cibseven.bpm.engine.ProcessEngine;
-import org.cibseven.bpm.engine.RuntimeService;
-import org.cibseven.bpm.engine.runtime.ProcessInstance;
-import org.cibseven.bpm.engine.test.Deployment;
+import org.operaton.bpm.engine.ProcessEngine;
+import org.operaton.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.runtime.ProcessInstance;
+import org.operaton.bpm.engine.test.Deployment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,15 +41,14 @@ import static java.util.Map.entry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.cibseven.bpm.admin.impl.plugin.resources.MetricsRestService.objectMapper;
-import static org.cibseven.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
+import static org.operaton.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = { "camunda.bpm.job-execution.enabled=false",
-        "camunda.bpm.generate-unique-process-engine-name=true",
-        "camunda.bpm.generate-unique-process-application-name=true",
+@TestPropertySource(properties = { "operaton.bpm.job-execution.enabled=false",
+        "operaton.bpm.generate-unique-process-engine-name=true",
+        "operaton.bpm.generate-unique-process-application-name=true",
         "spring.datasource.hikari.jdbc-url=jdbc:h2:mem:WorkflowBPMTest", "spring.datasource.generate-unique-name=true",
         "spring.docker.compose.file=compose.yaml" })
 @Deployment(resources = "process.bpmn")
@@ -56,6 +56,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles(value = "local")
 @Import(TestCamundaClientConfiguration.class)
 class WorkflowBPMTest {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @LocalServerPort
     private int localServerPort;

@@ -13,7 +13,7 @@ Die beiden schreibfreien Controller-Endpunkte der Anwendung pruefen: Build-Infor
 ```mermaid
 sequenceDiagram
     actor C as HTTP Client (IntelliJ)
-    participant APP as workflow-cib7-hello-world
+    participant APP as workflow-operaton-hello-world
 
     C->>APP: GET /restapi/ping (Basic Auth)
     APP-->>C: 200 (BuildProperties)

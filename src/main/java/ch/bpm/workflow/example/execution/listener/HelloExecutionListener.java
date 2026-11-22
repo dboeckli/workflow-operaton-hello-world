@@ -2,8 +2,8 @@ package ch.bpm.workflow.example.execution.listener;
 
 import ch.bpm.workflow.example.common.bpm.variable.token.TokenVariable;
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.delegate.DelegateExecution;
-import org.cibseven.bpm.engine.delegate.ExecutionListener;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
 
 import static ch.bpm.workflow.example.common.bpm.variable.token.TokenStatus.COMPLETED;

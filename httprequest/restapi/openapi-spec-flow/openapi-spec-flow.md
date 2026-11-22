@@ -13,7 +13,7 @@ importieren.
 ```mermaid
 sequenceDiagram
     actor C as HTTP Client (IntelliJ/Bruno)
-    participant APP as workflow-cib7-hello-world
+    participant APP as workflow-operaton-hello-world
 
     C->>APP: GET /swagger/v3/api-docs/restapi
     APP-->>C: 200 (REST-API-Spec, 3 Pfade)

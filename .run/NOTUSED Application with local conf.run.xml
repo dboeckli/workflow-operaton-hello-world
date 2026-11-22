@@ -4,7 +4,7 @@
     <option name="envFilePaths">
       <option value="$PROJECT_DIR$/src/main/conf/local.conf" />
     </option>
-    <module name="workflow-cib7-hello-world" />
+    <module name="workflow-operaton-hello-world" />
     <selectedOptions>
       <option name="environmentVariables" />
     </selectedOptions>

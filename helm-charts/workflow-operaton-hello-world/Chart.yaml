@@ -8,7 +8,7 @@ version: @helm.chart.version@
 appVersion: @helm.chart.version@
 
 dependencies:
-  - name: workflow-cib7-hello-world-ldap
+  - name: workflow-operaton-hello-world-ldap
     version: @helm.chart.version@
     repository: file://charts/ldap
     condition: ldap.enabled

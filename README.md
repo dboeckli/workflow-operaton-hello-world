@@ -1,10 +1,10 @@
-# CIB seven Hello World
+# Operaton Hello World
 
 ## Abstract
 
-`workflow-cib7-hello-world` is a Spring Boot reference application built on **CIB seven** — the open-source
-successor of Camunda 7. It runs an executable BPMN 2.0 process (`hello-world-process`) that showcases the main
-building blocks of the CIB seven engine:
+`workflow-operaton-hello-world` is a Spring Boot reference application built on **Operaton** — the open-source
+community fork of Camunda 7. It runs an executable BPMN 2.0 process (`hello-world-process`) that showcases the main
+building blocks of the Operaton engine:
 
 - **User task** (`say-hello`) with candidate user and an execution listener
 - **Java delegates** (input validation, say-hello) plus a **BpmnError** boundary event
@@ -12,7 +12,7 @@ building blocks of the CIB seven engine:
 - **External task** worker subscribed to the `sayHelloTopic`
 - **Typed process variable** (`TokenVariable`) with a custom JSON deserializer
 
-The application embeds the CIB seven engine, the CIB-7 webclient and the Camunda REST API, exposes Actuator
+The application embeds the Operaton engine, the Operaton web applications and the Camunda-compatible REST API, exposes Actuator
 and OpenAPI/Swagger endpoints, authenticates against **OpenLDAP** and persists to an in-memory **H2**
 database. It ships a Helm chart (incl. a local LDAP subchart) and Kubernetes manifests for deployment.
 
@@ -30,12 +30,11 @@ database. It ships a Helm chart (incl. a local LDAP subchart) and Kubernetes man
 graph LR
     Client(["💻 Client"])
 
-    subgraph App ["workflow-cib7-hello-world · Spring Boot :8080"]
+    subgraph App ["workflow-operaton-hello-world · Spring Boot :8080"]
         REST["REST API\n/restapi/*"]
-        Webclient["CIB-7 Webclient\n/webapp"]
-        Cockpit["Camunda Cockpit\n/camunda"]
+        Webapps["Operaton Webapps\n/operaton"]
         Docs["OpenAPI / Swagger UI\n/swagger/*"]
-        Engine["CIB seven BPM Engine\n(Camunda 7 successor)"]
+        Engine["Operaton BPM Engine\n(Camunda 7 fork)"]
         Worker["External Task Worker\nsayHelloTopic"]
     end
 
@@ -48,18 +47,15 @@ graph LR
     H2[("H2 In-Memory\njdbc:h2:mem:workflow-hello-world")]
 
     Client -->|"REST"| REST
-    Client -->|"browser"| Webclient
-    Client -->|"browser"| Cockpit
+    Client -->|"browser"| Webapps
     Client -->|"browser"| Docs
     Client -->|"browser"| LDAPUI
     REST --> Engine
-    Webclient --> Engine
-    Cockpit --> Engine
+    Webapps --> Engine
     Worker -->|"poll / complete\n/engine-rest"| Engine
     Engine <--> H2
     Engine -->|"Java delegate\nCustomerApi"| ApiFirst
-    Webclient -->|"LDAP auth"| LDAP
-    Cockpit -->|"LDAP auth"| LDAP
+    Webapps -->|"LDAP auth"| LDAP
     Engine -->|"identity"| LDAP
     LDAPUI -->|"browse"| LDAP
 ```
@@ -80,12 +76,9 @@ raise a `BpmnError` caught by a boundary event.
 
 Use 8080 when started locally or 30080 in Kubernetes
 
-- Camunda Cockpit: 
-  - http://localhost:8080/camunda/app/welcome/default/#!/welcome
-  - http://localhost:30080/camunda/app/welcome/default/#!/welcome
-- CIB-7 Cockpit: 
-  - http://localhost:8080/webapp
-  - http://localhost:30080/webapp
+- Operaton Webapps (Cockpit/Tasklist/Admin):
+  - http://localhost:8080/operaton/
+  - http://localhost:30080/operaton/
 - Actuator: 
   - http://localhost:8080/actuator
   - http://localhost:30080/actuator
@@ -127,8 +120,8 @@ The server URL written into both specs defaults to `http://localhost:8080` and c
 The specs are attached as Maven artifacts in the `verify` phase and are therefore published with
 `mvn deploy` (GitHub Packages):
 
-- `ch.bpm.workflow.cib7:workflow-cib7-hello-world:<version>:json:openapi-restapi`
-- `ch.bpm.workflow.cib7:workflow-cib7-hello-world:<version>:json:openapi-camunda-engine-rest-api`
+- `ch.bpm.workflow.operaton:workflow-operaton-hello-world:<version>:json:openapi-restapi`
+- `ch.bpm.workflow.operaton:workflow-operaton-hello-world:<version>:json:openapi-camunda-engine-rest-api`
 
 With `-Dskip.start.stop.springboot=true` app start, generation and attachment are skipped.
 
@@ -161,7 +154,7 @@ The `httprequest/` folder contains IntelliJ HTTP request files for manual testin
 | `apifirst.http` | apifirst-server-jpa endpoints          |
 
 Requests include W3C trace context via `httprequest/scripts/traceparent.js` (`traceparent` and
-`baggage: testBaggage=workflow-cib7-hello-world` headers). Environments (`host`, `context`,
+`baggage: testBaggage=workflow-operaton-hello-world` headers). Environments (`host`, `context`,
 credentials) are configured in `httprequest/http-client.env.json`; select `local` or `k8s`.
 
 ### Servers
@@ -172,8 +165,8 @@ credentials) are configured in `httprequest/http-client.env.json`; select `local
 ## Prerequisites
 
 - Java 25
-- CIB seven 2.2.0 (Camunda 7 successor)
-- Spring Boot 4.1.1
+- Operaton 2.2.2 (Camunda 7 fork)
+- Spring Boot 4.1.3
 - Maven Wrapper (included, Maven 3.9.16)
 - `~/.m2/settings.xml` is set
   up [Help](https://swp-confluence.atlassian.net/wiki/spaces/SWPIT/pages/411173348/How+to+Install+and+setup+maven#Setting-up-the-maven-settings)
@@ -205,7 +198,7 @@ To run maven filtering and package the Helm charts:
 ./mvnw clean install -DskipTests -Dskip.docker.build=true -Dskip.start.stop.springboot=true
 ```
 
-The chart is deployed into the `workflow-cib7-hello-world` namespace (not `default`).
+The chart is deployed into the `workflow-operaton-hello-world` namespace (not `default`).
 
 Go to the directory where the tgz file has been created after `./mvnw install`
 ```powershell
@@ -214,50 +207,50 @@ cd target/helm/repo
 
 unpack
 ```powershell
-$file = Get-ChildItem -Filter workflow-cib7-hello-world-chart-*.tgz | Select-Object -First 1
+$file = Get-ChildItem -Filter workflow-operaton-hello-world-chart-*.tgz | Select-Object -First 1
 tar -xvf $file.Name
 ```
 
 install
 ```powershell
 $APPLICATION_NAME = Get-ChildItem -Directory | Where-Object { $_.LastWriteTime -ge $file.LastWriteTime } | Select-Object -ExpandProperty Name
-helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace workflow-cib7-hello-world --create-namespace --wait --timeout 5m --debug
+helm upgrade --install $APPLICATION_NAME ./$APPLICATION_NAME --namespace workflow-operaton-hello-world --create-namespace --wait --timeout 5m --debug
 ```
 
 show logs and show event
 ```powershell
-kubectl get pods -n workflow-cib7-hello-world
+kubectl get pods -n workflow-operaton-hello-world
 ```
 replace $POD with pods from the command above
 ```powershell
-kubectl logs $POD -n workflow-cib7-hello-world --all-containers
+kubectl logs $POD -n workflow-operaton-hello-world --all-containers
 ```
 
 Show Details and Event
 
-$POD_NAME can be: workflow-cib7-hello-world-ldap, workflow-cib7-hello-world
+$POD_NAME can be: workflow-operaton-hello-world-ldap, workflow-operaton-hello-world
 ```powershell
-kubectl describe pod $POD_NAME -n workflow-cib7-hello-world
+kubectl describe pod $POD_NAME -n workflow-operaton-hello-world
 ```
 
 Show Endpoints
 ```powershell
-kubectl get endpoints -n workflow-cib7-hello-world
+kubectl get endpoints -n workflow-operaton-hello-world
 ```
 
 uninstall
 ```powershell
-helm uninstall $APPLICATION_NAME --namespace workflow-cib7-hello-world
+helm uninstall $APPLICATION_NAME --namespace workflow-operaton-hello-world
 ```
 
 delete all
 ```powershell
-kubectl delete all --all -n workflow-cib7-hello-world
+kubectl delete all --all -n workflow-operaton-hello-world
 ```
 
 create busybox sidecar
 ```powershell
-kubectl run busybox-test --rm -it --image=busybox:1.36 --namespace=workflow-cib7-hello-world --command -- sh
+kubectl run busybox-test --rm -it --image=busybox:1.36 --namespace=workflow-operaton-hello-world --command -- sh
 ```
 
 You can use the actuator rest call to verify via port 30080

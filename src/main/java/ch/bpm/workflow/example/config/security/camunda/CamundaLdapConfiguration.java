@@ -4,11 +4,10 @@ import jakarta.servlet.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.cibseven.bpm.engine.impl.plugin.AdministratorAuthorizationPlugin;
-import org.cibseven.bpm.engine.rest.security.auth.ProcessEngineAuthenticationFilter;
-import org.cibseven.bpm.engine.rest.security.auth.impl.CompositeAuthenticationProvider;
-import org.cibseven.bpm.engine.rest.security.auth.impl.HttpBasicAuthenticationProvider;
-import org.cibseven.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin;
+import org.operaton.bpm.engine.impl.plugin.AdministratorAuthorizationPlugin;
+import org.operaton.bpm.engine.rest.security.auth.ProcessEngineAuthenticationFilter;
+import org.operaton.bpm.engine.rest.security.auth.impl.HttpBasicAuthenticationProvider;
+import org.operaton.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +16,14 @@ import org.springframework.context.annotation.Profile;
 
 import java.lang.reflect.Field;
 
-import static org.cibseven.bpm.engine.rest.security.auth.ProcessEngineAuthenticationFilter.AUTHENTICATION_PROVIDER_PARAM;
+import static org.operaton.bpm.engine.rest.security.auth.ProcessEngineAuthenticationFilter.AUTHENTICATION_PROVIDER_PARAM;
 
 @Configuration
 @Slf4j
 @Profile({ "local" })
 public class CamundaLdapConfiguration {
 
-    @Value("${camunda.bpm.run.auth.authentication}")
+    @Value("${camunda-ldap-plugin.authentication:basic}")
     private String authenticationProvider;
 
     @Value("${camunda-ldap-plugin.url}")
@@ -136,11 +135,6 @@ public class CamundaLdapConfiguration {
             registration.addInitParameter(AUTHENTICATION_PROVIDER_PARAM,
                     HttpBasicAuthenticationProvider.class.getName());
             log.info("### Using basic authentication");
-        }
-        else if (authenticationProvider.equals("composite")) {
-            registration.addInitParameter(AUTHENTICATION_PROVIDER_PARAM,
-                    CompositeAuthenticationProvider.class.getName());
-            log.info("### Using composite authentication");
         }
         else {
             throw new IllegalArgumentException("Invalid authentication provider: " + authenticationProvider);

@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "workflow-cib7-hello-world-ldap.fullname" . }}
+  name: {{ include "workflow-operaton-hello-world-ldap.fullname" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "workflow-cib7-hello-world-ldap.labels" . | nindent 4 }}
+    {{- include "workflow-operaton-hello-world-ldap.labels" . | nindent 4 }}
     app.kubernetes.io/component: database
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "workflow-cib7-hello-world-ldap.selectorLabels" . | nindent 6 }}
+      {{- include "workflow-operaton-hello-world-ldap.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: database
   template:
     metadata:
       labels:
-        {{- include "workflow-cib7-hello-world-ldap.selectorLabels" . | nindent 8 }}
+        {{- include "workflow-operaton-hello-world-ldap.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: database
     spec:
       containers:
@@ -77,7 +77,7 @@ spec:
       volumes:
         - name: ldifs
           configMap:
-            name: {{ include "workflow-cib7-hello-world-ldap.fullname" . }}-config-map
+            name: {{ include "workflow-operaton-hello-world-ldap.fullname" . }}-config-map
             items:
               - key: init_org_tree.ldif
                 path: init_org_tree.ldif

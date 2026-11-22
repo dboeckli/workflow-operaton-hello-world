@@ -42,10 +42,10 @@ public class OpenApiConfiguration {
 
     private final Environment environment;
 
-    @Value("${camunda.bpm.client.basic-auth.username}")
+    @Value("${operaton.bpm.client.basic-auth.username}")
     private String username;
 
-    @Value("${camunda.bpm.client.basic-auth.password}")
+    @Value("${operaton.bpm.client.basic-auth.password}")
     private String password;
 
     @Value("${openapi.server-url:}")
@@ -55,6 +55,10 @@ public class OpenApiConfiguration {
     public OpenApiCustomizer customGlobalHeaderOpenApiCustomizer() {
         return openApi -> {
             io.swagger.v3.oas.models.info.Info info = openApi.getInfo();
+            if (info == null) {
+                info = new io.swagger.v3.oas.models.info.Info();
+                openApi.setInfo(info);
+            }
             info.setTitle(buildProperties.getName());
             info.setVersion(buildProperties.getVersion());
             if (openApi.getTags() != null) {
@@ -118,6 +122,8 @@ public class OpenApiConfiguration {
                     String camundaJsonOpenApiUrl = scheme + "://" + hostname + ":" + port + CAMUNDA_OPENAPI_CONTEXT;
                     URL url = new URL(camundaJsonOpenApiUrl);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setConnectTimeout(5000);
+                    connection.setReadTimeout(30000);
 
                     // Set up basic auth
                     String auth = username + ":" + password;
@@ -137,7 +143,9 @@ public class OpenApiConfiguration {
                     OpenAPI externalOpenApi = new OpenAPIV3Parser().readContents(content.toString()).getOpenAPI();
 
                     // Set the correct server URL
-                    externalOpenApi.getServers().clear();
+                    if (externalOpenApi.getServers() != null) {
+                        externalOpenApi.getServers().clear();
+                    }
                     String baseUrl = StringUtils.hasText(openApiServerUrl) ? openApiServerUrl
                             : scheme + "://" + hostname + ":" + port;
                     if (baseUrl.endsWith("/")) {
@@ -147,10 +155,16 @@ public class OpenApiConfiguration {
 
                     // Merge paths and components from external OpenAPI into the current
                     // one
-                    openApi.getPaths().putAll(externalOpenApi.getPaths());
-                    if (externalOpenApi.getComponents() != null) {
+                    if (externalOpenApi.getPaths() != null) {
+                        openApi.getPaths().putAll(externalOpenApi.getPaths());
+                    }
+                    if (externalOpenApi.getComponents() != null
+                            && externalOpenApi.getComponents().getSchemas() != null) {
                         if (openApi.getComponents() == null) {
                             openApi.setComponents(new Components());
+                        }
+                        if (openApi.getComponents().getSchemas() == null) {
+                            openApi.getComponents().setSchemas(new java.util.LinkedHashMap<>());
                         }
                         openApi.getComponents().getSchemas().putAll(externalOpenApi.getComponents().getSchemas());
                     }

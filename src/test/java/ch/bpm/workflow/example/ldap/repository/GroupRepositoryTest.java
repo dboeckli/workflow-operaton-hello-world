@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @TestPropertySource(
-        properties = { "camunda.bpm.job-execution.enabled=false", "camunda.bpm.client.disable-auto-fetching=true" })
+        properties = { "operaton.bpm.job-execution.enabled=false", "operaton.bpm.client.disable-auto-fetching=true" })
 @Slf4j
 class GroupRepositoryTest {
 

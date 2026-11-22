@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.cibseven.bpm.engine.ProcessEngine;
-import org.cibseven.bpm.engine.RuntimeService;
-import org.cibseven.bpm.engine.runtime.ProcessInstance;
-import org.cibseven.bpm.engine.test.Deployment;
+import org.operaton.bpm.engine.ProcessEngine;
+import org.operaton.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.runtime.ProcessInstance;
+import org.operaton.bpm.engine.test.Deployment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,16 +51,16 @@ import static java.util.Map.entry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.cibseven.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
+import static org.operaton.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = { "camunda.bpm.job-execution.enabled=false",
-        "camunda.bpm.generate-unique-process-engine-name=true",
-        "camunda.bpm.generate-unique-process-application-name=true",
+@TestPropertySource(properties = { "operaton.bpm.job-execution.enabled=false",
+        "operaton.bpm.generate-unique-process-engine-name=true",
+        "operaton.bpm.generate-unique-process-application-name=true",
         "spring.datasource.hikari.jdbc-url=jdbc:h2:mem:WorkflowWithMockServerBPMTest",
         "spring.datasource.generate-unique-name=true" })
 @Testcontainers

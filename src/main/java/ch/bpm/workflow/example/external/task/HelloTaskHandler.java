@@ -2,10 +2,10 @@ package ch.bpm.workflow.example.external.task;
 
 import ch.bpm.workflow.example.common.bpm.variable.token.TokenVariable;
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.client.spring.annotation.ExternalTaskSubscription;
-import org.cibseven.bpm.client.task.ExternalTask;
-import org.cibseven.bpm.client.task.ExternalTaskHandler;
-import org.cibseven.bpm.client.task.ExternalTaskService;
+import org.operaton.bpm.client.spring.annotation.ExternalTaskSubscription;
+import org.operaton.bpm.client.task.ExternalTask;
+import org.operaton.bpm.client.task.ExternalTaskHandler;
+import org.operaton.bpm.client.task.ExternalTaskService;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

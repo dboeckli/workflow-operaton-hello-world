@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ch.bpm.workflow.cib7</groupId>
-  <artifactId>workflow-cib7-hello-world</artifactId>
+  <groupId>ch.bpm.workflow.operaton</groupId>
+  <artifactId>workflow-operaton-hello-world</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <name>${project.artifactId}</name>
@@ -46,17 +46,14 @@
     <helm.executable>helm</helm.executable>
 
     <!--
-        Spring Boot Version Compatibility
-        https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/version-compatibility/
-        https://docs.cibseven.org/manual/latest/user-guide/spring-boot-integration/version-compatibility/
+        Operaton / Spring Boot Version Compatibility
+        https://docs.operaton.org/docs/documentation/user-guide/spring-boot-integration/version-compatibility
         -->
-    <spring.boot.version>4.2.0</spring.boot.version>
-    <cib7.spring.boot.starter.version>2.2.0</cib7.spring.boot.starter.version>
+    <spring.boot.version>4.1.3</spring.boot.version>
+    <operaton.version>2.2.2</operaton.version>
+    <operaton.sql.scripts.version>7.24.0</operaton.sql.scripts.version>
     <graalvm.polyglot.js.version>25.5.5.0.3</graalvm.polyglot.js.version>
-    <!--
-        latest is: 2.8.8. use 2.8.4 to avoid conflicts with cibseven webclient dependency which is using 2.8.4
-        see: https://github.com/cibseven/cibseven-webclient/blob/main/cibseven-webclient-web/pom.xml
-        -->
+
     <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
     <springdoc-openapi-maven-plugin.version>1.6</springdoc-openapi-maven-plugin.version>
     <swagger-parser.version>2.1.49</swagger-parser.version>
@@ -95,9 +92,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.cibseven.bpm</groupId>
-        <artifactId>cibseven-bom</artifactId>
-        <version>${cib7.spring.boot.starter.version}</version>
+        <groupId>org.operaton.bpm</groupId>
+        <artifactId>operaton-bom</artifactId>
+        <version>${operaton.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -106,33 +103,34 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.cibseven.bpm.springboot</groupId>
-      <artifactId>cibseven-bpm-spring-boot-starter-4</artifactId>
+      <groupId>org.operaton.bpm.springboot</groupId>
+      <artifactId>operaton-bpm-spring-boot-starter</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm.springboot</groupId>
-      <artifactId>cibseven-bpm-spring-boot-starter-rest-4</artifactId>
+      <groupId>org.operaton.bpm.springboot</groupId>
+      <artifactId>operaton-bpm-spring-boot-starter-rest</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm.springboot</groupId>
-      <artifactId>cibseven-bpm-spring-boot-starter-webapp-4</artifactId>
+      <groupId>org.operaton.bpm.springboot</groupId>
+      <artifactId>operaton-bpm-spring-boot-starter-webapp</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm.springboot</groupId>
-      <artifactId>cibseven-bpm-spring-boot-starter-external-task-client-4</artifactId>
+      <groupId>org.operaton.bpm.springboot</groupId>
+      <artifactId>operaton-bpm-spring-boot-starter-external-task-client</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm</groupId>
-      <artifactId>cibseven-engine-plugin-spin</artifactId>
+      <groupId>org.operaton.bpm</groupId>
+      <artifactId>operaton-engine-plugin-spin</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.spin</groupId>
-      <artifactId>cibseven-spin-dataformat-all</artifactId>
+      <groupId>org.operaton.spin</groupId>
+      <artifactId>operaton-spin-dataformat-all</artifactId>
+      <version>${operaton.version}</version>
     </dependency>
 
     <!-- for javascript support -->
@@ -150,35 +148,35 @@
 
     <!-- allows us to use connector service tasks -->
     <dependency>
-      <groupId>org.cibseven.bpm</groupId>
-      <artifactId>cibseven-engine-plugin-connect</artifactId>
+      <groupId>org.operaton.bpm</groupId>
+      <artifactId>operaton-engine-plugin-connect</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm</groupId>
-      <artifactId>cibseven-engine-rest-openapi</artifactId>
-      <version>${cib7.spring.boot.starter.version}</version>
+      <groupId>org.operaton.bpm</groupId>
+      <artifactId>operaton-engine-rest-openapi</artifactId>
+      <version>${operaton.version}</version>
     </dependency>
 
     <!--
         https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/spring-security/
         -->
     <dependency>
-      <groupId>org.cibseven.bpm.springboot</groupId>
-      <artifactId>cibseven-bpm-spring-boot-starter-security-4</artifactId>
-      <version>${cib7.spring.boot.starter.version}</version>
+      <groupId>org.operaton.bpm.springboot</groupId>
+      <artifactId>operaton-bpm-spring-boot-starter-security</artifactId>
+      <version>${operaton.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm.identity</groupId>
-      <artifactId>cibseven-identity-ldap</artifactId>
-      <version>${cib7.spring.boot.starter.version}</version>
+      <groupId>org.operaton.bpm.identity</groupId>
+      <artifactId>operaton-identity-ldap</artifactId>
+      <version>${operaton.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm.distro</groupId>
-      <artifactId>cibseven-sql-scripts</artifactId>
-      <version>${cib7.spring.boot.starter.version}</version>
+      <groupId>org.operaton.bpm.distro</groupId>
+      <artifactId>operaton-sql-scripts</artifactId>
+      <version>${operaton.sql.scripts.version}</version>
     </dependency>
 
     <dependency>
@@ -291,14 +289,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm</groupId>
-      <artifactId>cibseven-bpm-assert</artifactId>
+      <groupId>org.operaton.bpm</groupId>
+      <artifactId>operaton-bpm-assert</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.cibseven.bpm</groupId>
-      <artifactId>cibseven-bpm-junit5</artifactId>
+      <groupId>org.operaton.bpm</groupId>
+      <artifactId>operaton-engine</artifactId>
+      <classifier>junit5</classifier>
       <scope>test</scope>
     </dependency>
 
@@ -384,21 +383,6 @@
       <url>https://maven.pkg.github.com/${project.organization.name}/${project.artifactId}</url>
     </repository>
 
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>cib7-repo</id>
-      <url>https://artifacts.cibseven.org/repository/public/</url>
-    </repository>
-
-    <repository>
-      <id>camunda</id>
-      <url>https://artifacts.camunda.com/artifactory/public/</url>
-    </repository>
   </repositories>
 
   <build>
@@ -693,9 +677,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>org.cibseven.bpm</groupId>
-                  <artifactId>cibseven-engine-rest-openapi</artifactId>
-                  <version>${cib7.spring.boot.starter.version}</version>
+                  <groupId>org.operaton.bpm</groupId>
+                  <artifactId>operaton-engine-rest-openapi</artifactId>
+                  <version>${operaton.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/camunda-openapi/</outputDirectory>
@@ -713,9 +697,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>org.cibseven.bpm.distro</groupId>
-                  <artifactId>cibseven-sql-scripts</artifactId>
-                  <version>${cib7.spring.boot.starter.version}</version>
+                  <groupId>org.operaton.bpm.distro</groupId>
+                  <artifactId>operaton-sql-scripts</artifactId>
+                  <version>${operaton.sql.scripts.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/camunda-sql-scripts/</outputDirectory>
@@ -1081,8 +1065,8 @@
                 <argument>--server.port=${tomcat.http.port}</argument>
                 <argument>--spring.cloud.kubernetes.enabled=false</argument>
                 <argument>--openapi.server-url=${openapi.server.url}</argument>
-                <argument>--camunda.bpm.job-execution.enabled=false</argument>
-                <argument>--camunda.bpm.client.disable-auto-fetching=true</argument>
+                <argument>--operaton.bpm.job-execution.enabled=false</argument>
+                <argument>--operaton.bpm.client.disable-auto-fetching=true</argument>
               </arguments>
               <jmxPort>${jmx.server.port}</jmxPort>
             </configuration>

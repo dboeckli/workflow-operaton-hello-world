@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.cibseven.bpm.engine.ProcessEngineConfiguration;
-import org.cibseven.bpm.engine.spring.SpringProcessEngineConfiguration;
-import org.cibseven.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin;
-import org.cibseven.bpm.spring.boot.starter.property.CamundaBpmProperties;
-import org.cibseven.bpm.spring.boot.starter.rest.CamundaJerseyResourceConfig;
+import org.operaton.bpm.engine.ProcessEngineConfiguration;
+import org.operaton.bpm.engine.spring.SpringProcessEngineConfiguration;
+import org.operaton.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin;
+import org.operaton.bpm.spring.boot.starter.property.OperatonBpmProperties;
+import org.operaton.bpm.spring.boot.starter.rest.OperatonJerseyResourceConfig;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -32,9 +32,9 @@ public class InitializingBeanImpl implements InitializingBean {
 
     private final ProcessEngineConfiguration processEngineConfiguration;
 
-    private final CamundaBpmProperties camundaBpmProperties;
+    private final OperatonBpmProperties operatonBpmProperties;
 
-    private final CamundaJerseyResourceConfig camundaJerseyResourceConfig;
+    private final OperatonJerseyResourceConfig operatonJerseyResourceConfig;
 
     @Override
     public void afterPropertiesSet() {
@@ -46,17 +46,17 @@ public class InitializingBeanImpl implements InitializingBean {
                 printSpringProcessEngineConfiguration(processEngineConfiguration));
         log.debug(READING_CONFIG_CLASS.getMessage(), processEngineConfiguration.getClass().getName(), SEPARATOR);
 
-        log.debug(READING_CONFIG_CLASS.getMessage(), camundaBpmProperties.getClass().getName(),
-                printCamundaBpmProperties(camundaBpmProperties));
-        log.debug(READING_CONFIG_CLASS.getMessage(), camundaBpmProperties.getClass().getName(), SEPARATOR);
+        log.debug(READING_CONFIG_CLASS.getMessage(), operatonBpmProperties.getClass().getName(),
+                printOperatonBpmProperties(operatonBpmProperties));
+        log.debug(READING_CONFIG_CLASS.getMessage(), operatonBpmProperties.getClass().getName(), SEPARATOR);
 
-        log.debug(READING_CONFIG_CLASS.getMessage(), camundaBpmProperties.getClass().getName(),
-                printCamundaBpmProperties(camundaBpmProperties));
-        log.debug(READING_CONFIG_CLASS.getMessage(), camundaBpmProperties.getClass().getName(), SEPARATOR);
+        log.debug(READING_CONFIG_CLASS.getMessage(), operatonBpmProperties.getClass().getName(),
+                printOperatonBpmProperties(operatonBpmProperties));
+        log.debug(READING_CONFIG_CLASS.getMessage(), operatonBpmProperties.getClass().getName(), SEPARATOR);
 
-        log.debug(READING_CONFIG_CLASS.getMessage(), camundaJerseyResourceConfig.getClass().getName(),
-                printCamundaJerseyResourceConfig(camundaJerseyResourceConfig));
-        log.debug(READING_CONFIG_CLASS.getMessage(), camundaJerseyResourceConfig.getClass().getName(), SEPARATOR);
+        log.debug(READING_CONFIG_CLASS.getMessage(), operatonJerseyResourceConfig.getClass().getName(),
+                printOperatonJerseyResourceConfig(operatonJerseyResourceConfig));
+        log.debug(READING_CONFIG_CLASS.getMessage(), operatonJerseyResourceConfig.getClass().getName(), SEPARATOR);
     }
 
     private static String printSpringProcessEngineConfiguration(ProcessEngineConfiguration processEngineConfiguration) {
@@ -72,8 +72,8 @@ public class InitializingBeanImpl implements InitializingBean {
         return builder.toString();
     }
 
-    private static String printCamundaBpmProperties(CamundaBpmProperties camundaBpmProperties) {
-        ReflectionToStringBuilder builder = new ReflectionToStringBuilder(camundaBpmProperties,
+    private static String printOperatonBpmProperties(OperatonBpmProperties operatonBpmProperties) {
+        ReflectionToStringBuilder builder = new ReflectionToStringBuilder(operatonBpmProperties,
                 ToStringStyle.MULTI_LINE_STYLE) {
             @Override
             protected boolean accept(Field field) {
@@ -83,8 +83,8 @@ public class InitializingBeanImpl implements InitializingBean {
         return builder.toString();
     }
 
-    private static String printCamundaJerseyResourceConfig(CamundaJerseyResourceConfig camundaJerseyResourceConfig) {
-        ReflectionToStringBuilder builder = new ReflectionToStringBuilder(camundaJerseyResourceConfig,
+    private static String printOperatonJerseyResourceConfig(OperatonJerseyResourceConfig operatonJerseyResourceConfig) {
+        ReflectionToStringBuilder builder = new ReflectionToStringBuilder(operatonJerseyResourceConfig,
                 ToStringStyle.MULTI_LINE_STYLE) {
             @Override
             protected boolean accept(Field field) {

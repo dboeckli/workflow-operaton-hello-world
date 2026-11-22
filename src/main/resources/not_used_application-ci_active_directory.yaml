@@ -17,7 +17,7 @@ server:
     context-path: /bpm
   port: 8081
 
-camunda:
+operaton:
   bpm:
     admin-user:
       id: ldapbind-sit

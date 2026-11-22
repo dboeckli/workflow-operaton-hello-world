@@ -27,6 +27,11 @@ public class RestApiConfiguration {
     private String context;
 
     @Bean
+    public RestTemplate customRestTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
     public CustomerApi customerApi(RestTemplate customRestTemplate) {
         ApiClient apiClient = new ApiClient(customRestTemplate);
 

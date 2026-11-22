@@ -89,7 +89,7 @@
                 "ch.guru.springframework.apifirst:apifirst-client"
             ],
             "registryUrls": [
-                "https://maven.pkg.github.com/dboeckli/workflow-cib7-hello-world"
+                "https://maven.pkg.github.com/dboeckli/workflow-operaton-hello-world"
             ],
             "allowedVersions": "/^[0-9]+\\.[0-9]+\\.[0-9]+(-SNAPSHOT)?$/"
         },
