@@ -506,10 +506,32 @@ function renderRequest(request, sequence, metadata) {
     .filter((include) => !include.endsWith(TRACEPARENT_SCRIPT))
     .map((include) => translateScript(metadata.includeContents[include] || ''))
     .join('\n');
-  const preRequest = [includeContent, ...request.preScripts.map(translateScript)].filter(Boolean).join('\n');
+  const waitMarker = request.comments.find((comment) => comment.startsWith('bruno:wait-for-task '));
+  let waitScript = '';
+  if (waitMarker) {
+    const helper = waitMarker.slice('bruno:wait-for-task '.length).trim();
+    const helperPath = [metadata.collectionRelativeDir, helper].filter(Boolean).join('/');
+    waitScript = [
+      `const taskPath = ${JSON.stringify(helperPath)};`,
+      'let task;',
+      'for (let attempt = 1; attempt <= 30; attempt += 1) {',
+      '  const response = await bru.runRequest(taskPath);',
+      '  if (response.status === 200 && Array.isArray(response.data) && response.data.length > 0) {',
+      '    task = response.data[0];',
+      '    break;',
+      '  }',
+      '  if (attempt === 30) {',
+      '    throw new Error("say-hello task did not become available");',
+      '  }',
+      '  await bru.sleep(2000);',
+      '}',
+      'bru.setVar("taskId", task.id);',
+    ].join('\n');
+  }
+  const preRequest = [waitScript, includeContent, ...request.preScripts.map(translateScript)].filter(Boolean).join('\n');
   const tests = translateScript(request.postScript);
 
-  const docs = [...metadata.preamble, ...request.comments].filter(Boolean);
+  const docs = [...metadata.preamble, ...request.comments.filter((comment) => !comment.startsWith('bruno:'))].filter(Boolean);
   if (docs.length > 0) {
     docs.push('');
   }
@@ -625,6 +647,7 @@ async function buildExpected(files, collectionRoot, source, format) {
       const renderedBru = renderRequest(request, sequence, {
         preamble: index === 0 ? preamble : [],
         sourceRelativePath: relative,
+        collectionRelativeDir: path.relative(collectionRoot, directory).split(path.sep).join('/'),
         includeContents,
       });
       const rendered = format === 'yml' ? toYaml(renderedBru, 'request') : renderedBru;
