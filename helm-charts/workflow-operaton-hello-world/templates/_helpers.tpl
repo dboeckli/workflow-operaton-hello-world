@@ -68,9 +68,20 @@ Use the apifirst-server-jpa service FQDN
 
 
 {{/*
-Use the workflow-operaton-hello-world-ldap service FQDN
+Use the workflow-operaton-hello-world-ldap service FQDN.
+The LDAP subchart's service name is its fullname (release + subchart name),
+truncated to the 63-char DNS label limit.
 */}}
 {{- define "workflow-operaton-hello-world-ldap.serviceFQDN" -}}
-{{- $fullname := include "workflow-operaton-hello-world-ldap.fullname" . -}}
-{{- printf "%s-%s.%s.svc.cluster.local" $fullname "workflow-operaton-hello-world-ldap" .Release.Namespace }}
+{{- $sub := index .Values "workflow-operaton-hello-world-ldap" | default dict -}}
+{{- $name := default "workflow-operaton-hello-world-ldap" $sub.nameOverride -}}
+{{- $fullname := "" -}}
+{{- if $sub.fullnameOverride -}}
+{{- $fullname = $sub.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else if contains $name .Release.Name -}}
+{{- $fullname = .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $fullname = printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- printf "%s.%s.svc.cluster.local" $fullname .Release.Namespace -}}
 {{- end -}}
