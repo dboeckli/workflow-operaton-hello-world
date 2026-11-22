@@ -103,6 +103,12 @@ Token nach dem Start am User Task `say-hello` (Status `RUNNING`).
 - Task-Query: `200` (Task ggf. noch nicht aktiv); Claim pollt, Claim/Complete: `204`.
 - `missing-input` und `empty-input`: `400`.
 
+## CI-Reports
+
+Die Deploy-Pipeline startet jeden Flow separat und erzeugt pro Flow einen eigenen
+Bruno-Report (HTML + JUnit): 6 × `workflow-flow/*`, `openapi-spec-flow`,
+`restapi-smoke-flow` = 8.
+
 ## Hinweise
 
 - Der Prozessstart ruft `ValidateInputDelegate` synchron auf; dieser benoetigt LDAP

@@ -184,10 +184,34 @@ jobs:
           done
 
           mkdir -p "$GITHUB_WORKSPACE/bru-reports"
-          bru run restapi -r --env local --delay 6000 \
-            --reporter-skip-all-headers \
-            --reporter-junit "$GITHUB_WORKSPACE/bru-reports/TEST-bruno-restapi.xml" \
-            --reporter-html "$GITHUB_WORKSPACE/bru-reports/bru-report-restapi.html"
+
+          flows=(
+            "workflow-flow/default:workflow-flow-default"
+            "workflow-flow/eder:workflow-flow-eder"
+            "workflow-flow/pumukel:workflow-flow-pumukel"
+            "workflow-flow/fail:workflow-flow-fail"
+            "workflow-flow/missing-input:workflow-flow-missing-input"
+            "workflow-flow/empty-input:workflow-flow-empty-input"
+            "openapi-spec-flow:openapi-spec-flow"
+            "restapi-smoke-flow:restapi-smoke-flow"
+          )
+          failed=0
+          for entry in "${flows[@]}"; do
+            flow_dir="${entry%%:*}"
+            report_name="${entry##*:}"
+            echo "::group::Bruno flow ${flow_dir}"
+            if ! bru run "restapi/${flow_dir}" --env local --delay 6000 \
+                --reporter-skip-all-headers \
+                --reporter-junit "$GITHUB_WORKSPACE/bru-reports/TEST-bruno-${report_name}.xml" \
+                --reporter-html "$GITHUB_WORKSPACE/bru-reports/bru-report-${report_name}.html"; then
+              echo "::error::Bruno flow ${flow_dir} failed"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Upload Bruno reports
         if: always()
