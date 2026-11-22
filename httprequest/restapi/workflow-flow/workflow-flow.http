@@ -7,7 +7,7 @@ Accept: application/json
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 {
     "input": "hallo"
@@ -31,7 +31,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/variables/tokenV
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const token = response.body.value;
@@ -50,7 +50,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/activity-instanc
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const root = response.body;
@@ -70,7 +70,7 @@ Accept: application/json
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 {
     "input": "eder"
@@ -93,7 +93,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/variables/tokenV
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const token = response.body.value;
@@ -112,7 +112,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/activity-instanc
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const root = response.body;
@@ -132,7 +132,7 @@ Accept: application/json
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 {
     "input": "pumukel"
@@ -155,7 +155,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/variables/tokenV
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const token = response.body.value;
@@ -174,7 +174,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/activity-instanc
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const root = response.body;
@@ -194,7 +194,7 @@ Accept: application/json
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 {
     "input": "fail"
@@ -216,7 +216,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/variables/tokenV
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const token = response.body.value;
@@ -235,7 +235,7 @@ GET {{host}}/engine-rest/process-instance/{{processInstanceId}}/activity-instanc
 Authorization: Basic {{username}} {{password}}
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     const root = response.body;
@@ -255,7 +255,7 @@ Accept: application/json
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 {}
 
@@ -272,7 +272,7 @@ Accept: application/json
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 {
     "input": ""

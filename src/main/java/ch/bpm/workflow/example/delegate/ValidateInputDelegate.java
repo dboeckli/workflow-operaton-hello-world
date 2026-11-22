@@ -9,10 +9,10 @@ import ch.bpm.workflow.example.ldap.model.Group;
 import ch.bpm.workflow.example.ldap.model.Person;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.delegate.DelegateExecution;
-import org.cibseven.bpm.engine.delegate.JavaDelegate;
-import org.cibseven.bpm.engine.variable.Variables;
-import org.cibseven.bpm.engine.variable.value.ObjectValue;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.delegate.JavaDelegate;
+import org.operaton.bpm.engine.variable.Variables;
+import org.operaton.bpm.engine.variable.value.ObjectValue;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.stereotype.Component;
 

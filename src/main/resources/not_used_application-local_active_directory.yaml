@@ -14,7 +14,7 @@ server:
     context-path: /bpm
   port: 8081
 
-camunda:
+operaton:
   bpm:
     admin-user:
       id: ldapbind-dev
@@ -27,14 +27,6 @@ camunda:
     generic-properties:
       properties:
         telemetry-reporter-activate: false
-
-cibseven:
-  webclient:
-    services:
-      basePath: /webapp/services/v1
-    # Engine rest
-    engineRest:
-      url: http://localhost:8081/bpm
 
 camunda-ldap-plugin:
   url: ldaps://ldaps.swpds.ch

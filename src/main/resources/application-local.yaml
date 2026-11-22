@@ -43,19 +43,10 @@ spring:
       include-message: always
       include-binding-errors: always
 
-camunda:
+operaton:
   bpm:
     authorization:
       enabled: true
-    run:
-      ldap:
-        enabled: true # Switch to enable the LDAP identity service plugin
-      admin-auth:
-        enabled: true # Switch to enable the Administrator Authorization plugin
-      auth:
-        enabled: true # Switch to enable authentication for requests to the REST API
-        # composite requires cibseven-webclient.properties
-        authentication: composite # Authentication method, currently only basic and composite is supported
     admin-user:
       id: camunda-admin
     filter:
@@ -75,35 +66,14 @@ camunda:
         javaSerializationFormatEnabled: true
         historyTimeToLive: 5
         enableExceptionsAfterUnhandledBpmnError: true
-
-# CIB seven webclient configuration
-# Defaults & overrides
-# https://github.com/cibseven/cibseven-webclient
-# https://docs.cibseven.org/manual/latest/user-guide/cibseven-run/#choose-between-default-and-production-configuration
-# https://docs.cibseven.org/get-started/spring-boot/configuration/
-# Default is in JAR: cibseven-webclient-web-spring-boot-4-2.2.0.jar!/application.yaml
-# Config-Binding: org.cibseven.webapp.SevenWebclientContext
-cibseven:
-  webclient:
-    enabled: true
-    services:
-      basePath: webapp/services/v1
-    # Engine rest
-    engineRest:
-      url: http://localhost:8080
-      path: /engine-rest
-    user:
-      provider: org.cibseven.webapp.auth.LdapUserProvider
-    ldap:
-      url: ldap://localhost:389
-      user: cn=admin,dc=example,dc=ch
-      password: password
-      folder: dc=example,dc=ch # BASE DN
-      userNameAttribute: uid
-      userDisplayNameAttribute: cn
-      followReferrals: follow
+        # Operaton validates user/group/tenant ids against a whitelist pattern.
+        # Allow hyphens so LDAP entries like 'camunda-admin' remain usable.
+        userResourceWhitelistPattern: "[a-zA-Z0-9_-]+"
+        groupResourceWhitelistPattern: "[a-zA-Z0-9_-]+"
+        tenantResourceWhitelistPattern: "[a-zA-Z0-9_-]+"
 
 camunda-ldap-plugin:
+  authentication: basic # Authentication method for the REST API
   url: ldap://localhost:389
   sslEnabled: false
   user: cn=admin,dc=example,dc=ch
@@ -134,13 +104,9 @@ management:
       enabled: true
     livenessstate:
       enabled: true
-    camunda:
+    operaton:
       enabled: true
   endpoints:
-    # we need this deprecated config because the cibseven-webclient-web dependency comes with its own application.yaml
-    # we need to overwrite it this way.
-    # see: https://github.com/cibseven/cibseven-webclient/blob/main/cibseven-webclient-web/src/main/resources/application.yaml
-    #enabled-by-default: true
     web:
       exposure:
         include: "*"

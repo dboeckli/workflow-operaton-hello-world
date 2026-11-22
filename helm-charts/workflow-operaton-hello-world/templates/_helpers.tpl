@@ -68,9 +68,9 @@ Use the apifirst-server-jpa service FQDN
 
 
 {{/*
-Use the workflow-cib7-hello-world-ldap service FQDN
+Use the workflow-operaton-hello-world-ldap service FQDN
 */}}
-{{- define "workflow-cib7-hello-world-ldap.serviceFQDN" -}}
-{{- $fullname := include "workflow-cib7-hello-world-ldap.fullname" . -}}
-{{- printf "%s-%s.%s.svc.cluster.local" $fullname "workflow-cib7-hello-world-ldap" .Release.Namespace }}
+{{- define "workflow-operaton-hello-world-ldap.serviceFQDN" -}}
+{{- $fullname := include "workflow-operaton-hello-world-ldap.fullname" . -}}
+{{- printf "%s-%s.%s.svc.cluster.local" $fullname "workflow-operaton-hello-world-ldap" .Release.Namespace }}
 {{- end -}}

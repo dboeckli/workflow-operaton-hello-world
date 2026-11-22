@@ -6,9 +6,9 @@ import ch.guru.springframework.apifirst.client.CustomerApi;
 import ch.guru.springframework.apifirst.model.CustomerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.delegate.BpmnError;
-import org.cibseven.bpm.engine.delegate.DelegateExecution;
-import org.cibseven.bpm.engine.delegate.JavaDelegate;
+import org.operaton.bpm.engine.delegate.BpmnError;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

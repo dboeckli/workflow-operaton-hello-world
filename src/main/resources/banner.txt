@@ -18,4 +18,4 @@
      |_____|
 
 ::  Spring-Boot: ${spring-boot.formatted-version}
-::  CIB seven: ${camunda.bpm.formatted-version}
+::  Operaton: ${operaton.bpm.formatted-version}

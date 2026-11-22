@@ -1,7 +1,7 @@
 package ch.bpm.workflow.example;
 
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.ProcessEngine;
+import org.operaton.bpm.engine.ProcessEngine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(useMainMethod = SpringBootTest.UseMainMethod.ALWAYS)
 @ActiveProfiles(value = "test")
 @TestPropertySource(
-        properties = { "camunda.bpm.job-execution.enabled=false", "camunda.bpm.client.disable-auto-fetching=true" })
+        properties = { "operaton.bpm.job-execution.enabled=false", "operaton.bpm.client.disable-auto-fetching=true" })
 @Slf4j
 class TestApplicationTest {
 

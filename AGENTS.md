@@ -2,8 +2,8 @@
 
 ## Projekt
 
-`workflow-cib7-hello-world` — CIB-seven-BPM (Camunda-7-Nachfolger) Hello-World-Spring-Boot-App (`ch.bpm.workflow.cib7`).
-Eigenes Helm-Chart unter `helm-charts/workflow-cib7-hello-world/` inkl. lokalem LDAP-Subchart (`charts/ldap`).
+`workflow-operaton-hello-world` — Operaton-BPM (Camunda-7-Fork) Hello-World-Spring-Boot-App (`ch.bpm.workflow.operaton`).
+Eigenes Helm-Chart unter `helm-charts/workflow-operaton-hello-world/` inkl. lokalem LDAP-Subchart (`charts/ldap`).
 Siehe README.md für Build/Kubernetes/Helm-Anleitung.
 
 ## Kommandos

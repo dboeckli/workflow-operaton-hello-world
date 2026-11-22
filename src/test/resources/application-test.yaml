@@ -20,7 +20,7 @@ spring:
       include-message: always
       include-binding-errors: always
 
-camunda:
+operaton:
   bpm:
     authorization:
       enabled: true
@@ -37,6 +37,11 @@ camunda:
       ignore-unknown-fields: false
       properties:
         javaSerializationFormatEnabled: true
+        # Operaton validates user/group/tenant ids against a whitelist pattern.
+        # Allow hyphens so LDAP entries like 'camunda-admin' remain usable.
+        userResourceWhitelistPattern: "[a-zA-Z0-9_-]+"
+        groupResourceWhitelistPattern: "[a-zA-Z0-9_-]+"
+        tenantResourceWhitelistPattern: "[a-zA-Z0-9_-]+"
 
 camunda-ldap-plugin:
   url: ldap://localhost:389
@@ -75,6 +80,10 @@ logging:
     org.springframework.ldap: DEBUG
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
   info:
     build:
       enabled: true

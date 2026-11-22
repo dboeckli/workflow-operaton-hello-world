@@ -17,7 +17,7 @@ Activity-Instanz.
 ```mermaid
 sequenceDiagram
     actor C as HTTP Client (IntelliJ/Bruno)
-    participant APP as workflow-cib7-hello-world
+    participant APP as workflow-operaton-hello-world
     participant LDAP as OpenLDAP
     participant API as apifirst-server-jpa
 

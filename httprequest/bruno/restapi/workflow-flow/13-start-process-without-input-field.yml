@@ -12,7 +12,7 @@ http:
     - name: traceparent
       value: 00-{{traceId}}-{{spanId}}-03
     - name: baggage
-      value: testBaggage=workflow-cib7-hello-world
+      value: testBaggage=workflow-operaton-hello-world
   body:
     type: json
     data: "{}"

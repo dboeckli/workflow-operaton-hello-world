@@ -5,7 +5,7 @@
       <option value="$PROJECT_DIR$/src/main/conf/ci.conf" />
     </option>
     <log_file alias="application Log" path="$PROJECT_DIR$/../../../camunda/logs/application.log" />
-    <module name="workflow-cib7-hello-world" />
+    <module name="workflow-operaton-hello-world" />
     <selectedOptions>
       <option name="environmentVariables" />
     </selectedOptions>

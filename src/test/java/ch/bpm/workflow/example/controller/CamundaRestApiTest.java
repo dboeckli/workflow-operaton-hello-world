@@ -1,7 +1,7 @@
 package ch.bpm.workflow.example.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.ProcessEngine;
+import org.operaton.bpm.engine.ProcessEngine;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.cibseven.bpm.engine.test.assertions.bpmn.AbstractAssertions.init;
+import static org.operaton.bpm.engine.test.assertions.bpmn.AbstractAssertions.init;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(
-        properties = { "camunda.bpm.job-execution.enabled=false", "camunda.bpm.client.disable-auto-fetching=true" })
+        properties = { "operaton.bpm.job-execution.enabled=false", "operaton.bpm.client.disable-auto-fetching=true" })
 @ActiveProfiles(value = "test")
 @AutoConfigureTestRestTemplate
 @Slf4j

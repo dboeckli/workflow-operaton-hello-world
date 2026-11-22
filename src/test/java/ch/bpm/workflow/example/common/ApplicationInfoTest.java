@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource(
-        properties = { "camunda.bpm.job-execution.enabled=false", "camunda.bpm.client.disable-auto-fetching=true" })
+        properties = { "operaton.bpm.job-execution.enabled=false", "operaton.bpm.client.disable-auto-fetching=true" })
 @ActiveProfiles(profiles = "test")
 class ApplicationInfoTest {
 

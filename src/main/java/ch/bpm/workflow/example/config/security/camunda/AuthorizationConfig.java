@@ -3,15 +3,15 @@ package ch.bpm.workflow.example.config.security.camunda;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.AuthorizationService;
-import org.cibseven.bpm.engine.authorization.Authorization;
-import org.cibseven.bpm.engine.authorization.Permissions;
-import org.cibseven.bpm.engine.authorization.Resources;
+import org.operaton.bpm.engine.AuthorizationService;
+import org.operaton.bpm.engine.authorization.Authorization;
+import org.operaton.bpm.engine.authorization.Permissions;
+import org.operaton.bpm.engine.authorization.Resources;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import static ch.bpm.workflow.example.common.bpm.WorkflowConstants.PROCESS_DEFINITION_KEY;
-import static org.cibseven.bpm.engine.authorization.Authorization.AUTH_TYPE_GRANT;
+import static org.operaton.bpm.engine.authorization.Authorization.AUTH_TYPE_GRANT;
 
 @Configuration
 @Profile({ "local" })

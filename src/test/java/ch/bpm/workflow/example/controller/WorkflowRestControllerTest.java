@@ -1,8 +1,8 @@
 package ch.bpm.workflow.example.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.engine.impl.RuntimeServiceImpl;
-import org.cibseven.bpm.engine.impl.persistence.entity.ExecutionEntity;
+import org.operaton.bpm.engine.impl.RuntimeServiceImpl;
+import org.operaton.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(value = "test")
 @TestPropertySource(
-        properties = { "camunda.bpm.job-execution.enabled=false", "camunda.bpm.client.disable-auto-fetching=true" })
+        properties = { "operaton.bpm.job-execution.enabled=false", "operaton.bpm.client.disable-auto-fetching=true" })
 @Slf4j
 class WorkflowRestControllerTest {
 

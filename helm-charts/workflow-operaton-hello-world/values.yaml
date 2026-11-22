@@ -1,11 +1,11 @@
-nameOverride: "workflow-cib7-hello-world"
-fullnameOverride: "workflow-cib7-hello-world"
+nameOverride: "workflow-operaton-hello-world"
+fullnameOverride: "workflow-operaton-hello-world"
 
 global:
   timezone: Europe/Zurich
   timezonePath: /etc/localtime
   springDebug: false
-  namespace: workflow-cib7-hello-world
+  namespace: workflow-operaton-hello-world
 
 spring:
   profiles:

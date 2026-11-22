@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @TestPropertySource(
-        properties = { "camunda.bpm.job-execution.enabled=false", "camunda.bpm.client.disable-auto-fetching=true",
+        properties = { "operaton.bpm.job-execution.enabled=false", "operaton.bpm.client.disable-auto-fetching=true",
                 "spring.docker.compose.file=compose-it.yaml", "spring.docker.compose.stop.command=stop" })
 @AutoConfigureMockMvc
 @ActiveProfiles(value = "local")

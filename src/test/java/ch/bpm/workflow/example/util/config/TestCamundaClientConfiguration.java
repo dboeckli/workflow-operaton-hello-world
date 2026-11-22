@@ -2,8 +2,8 @@ package ch.bpm.workflow.example.util.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.cibseven.bpm.client.spring.impl.client.ClientConfiguration;
-import org.cibseven.bpm.engine.ProcessEngine;
+import org.operaton.bpm.client.spring.impl.client.ClientConfiguration;
+import org.operaton.bpm.engine.ProcessEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;

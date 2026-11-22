@@ -1,7 +1,7 @@
 opencollection: 1.0.0
 
 info:
-  name: workflow-cib7-hello-world httprequest
+  name: workflow-operaton-hello-world httprequest
   version: "1"
 
 request:

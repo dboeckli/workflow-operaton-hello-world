@@ -23,7 +23,7 @@ server:
     context-path: /bpm
   port: 8081
 
-camunda:
+operaton:
   bpm:
     authorization:
       enabled: true

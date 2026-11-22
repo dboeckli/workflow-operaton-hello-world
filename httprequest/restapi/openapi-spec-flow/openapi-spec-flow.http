@@ -5,7 +5,7 @@
 GET {{host}}/swagger/v3/api-docs/restapi
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     client.test("restapi spec returns 200", function () {
@@ -24,7 +24,7 @@ baggage: testBaggage=workflow-cib7-hello-world
 GET {{host}}/swagger/v3/api-docs/camunda-engine-rest-api
 Accept: application/json
 traceparent: 00-{{traceId}}-{{spanId}}-03
-baggage: testBaggage=workflow-cib7-hello-world
+baggage: testBaggage=workflow-operaton-hello-world
 
 > {%
     client.test("camunda spec returns 200", function () {
