@@ -54,7 +54,7 @@
     <operaton.sql.scripts.version>7.24.0</operaton.sql.scripts.version>
     <graalvm.polyglot.js.version>25.5.5.0.3</graalvm.polyglot.js.version>
 
-    <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
+    <springdoc-openapi-starter-webmvc-ui.version>3.2.1</springdoc-openapi-starter-webmvc-ui.version>
     <springdoc-openapi-maven-plugin.version>1.6</springdoc-openapi-maven-plugin.version>
     <swagger-parser.version>2.1.49</swagger-parser.version>
     <openapi-generator-maven-plugin.version>7.27.0</openapi-generator-maven-plugin.version>
